@@ -1,0 +1,2358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Luminary Home — Live Beautifully</title>
+  <link rel="preconnect" href="[fonts.googleapis.com](https://fonts.googleapis.com)" />
+  <link rel="preconnect" href="[fonts.gstatic.com](https://fonts.gstatic.com)" crossorigin />
+  <link href="[fonts.googleapis.com](https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Inter:wght@300;400;500;600&family=DM+Serif+Display:ital@0;1&display=swap)" rel="stylesheet" />
+  <style>
+    /* ============================================================
+       RESET & ROOT
+    ============================================================ */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --cream:   #F7F3ED;
+      --sand:    #E8DDD0;
+      --warm:    #C9A87C;
+      --oak:     #8B6343;
+      --walnut:  #3D2B1F;
+      --charcoal:#1C1C1C;
+      --white:   #FFFFFF;
+      --mist:    #F0EBE3;
+      --sage:    #8A9E7E;
+      --terracotta: #C4714A;
+      --navy:    #1E2D40;
+      --gold:    #D4AF6A;
+
+      --ff-serif: 'Playfair Display', Georgia, serif;
+      --ff-dm:    'DM Serif Display', Georgia, serif;
+      --ff-sans:  'Inter', system-ui, sans-serif;
+
+      --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out:   cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html { scroll-behavior: smooth; font-size: 16px; }
+
+    body {
+      font-family: var(--ff-sans);
+      background: var(--cream);
+      color: var(--charcoal);
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ============================================================
+       CUSTOM CURSOR
+    ============================================================ */
+    #cursor-dot,
+    #cursor-ring {
+      position: fixed;
+      border-radius: 50%;
+      pointer-events: none;
+      z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: opacity 0.3s;
+    }
+    #cursor-dot {
+      width: 8px; height: 8px;
+      background: var(--warm);
+    }
+    #cursor-ring {
+      width: 36px; height: 36px;
+      border: 1.5px solid var(--warm);
+      transition: width 0.25s var(--ease-out-expo),
+                  height 0.25s var(--ease-out-expo),
+                  border-color 0.25s;
+    }
+    body.cursor-hover #cursor-ring {
+      width: 60px; height: 60px;
+      border-color: var(--terracotta);
+    }
+
+    /* ============================================================
+       SCROLLBAR
+    ============================================================ */
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: var(--cream); }
+    ::-webkit-scrollbar-thumb { background: var(--warm); border-radius: 3px; }
+
+    /* ============================================================
+       UTILITY
+    ============================================================ */
+    .container { max-width: 1440px; margin: 0 auto; padding: 0 60px; }
+    @media (max-width: 768px) { .container { padding: 0 24px; } }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--warm);
+      margin-bottom: 12px;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--charcoal);
+      color: var(--cream);
+      font-family: var(--ff-sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 16px 32px;
+      border: none;
+      cursor: none;
+      position: relative;
+      overflow: hidden;
+      transition: color 0.4s;
+      text-decoration: none;
+    }
+    .btn-primary::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--warm);
+      transform: translateX(-100%);
+      transition: transform 0.4s var(--ease-out-expo);
+      z-index: 0;
+    }
+    .btn-primary:hover::after { transform: translateX(0); }
+    .btn-primary span { position: relative; z-index: 1; }
+    .btn-primary svg { position: relative; z-index: 1; transition: transform 0.3s; }
+    .btn-primary:hover svg { transform: translateX(5px); }
+
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: transparent;
+      color: var(--charcoal);
+      font-family: var(--ff-sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 15px 31px;
+      border: 1.5px solid var(--charcoal);
+      cursor: none;
+      transition: background 0.3s, color 0.3s;
+      text-decoration: none;
+    }
+    .btn-ghost:hover { background: var(--charcoal); color: var(--cream); }
+
+    /* Reveal on scroll */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left {
+      opacity: 0;
+      transform: translateX(-40px);
+      transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+    }
+    .reveal-left.visible { opacity: 1; transform: translateX(0); }
+    .reveal-right {
+      opacity: 0;
+      transform: translateX(40px);
+      transition: opacity 0.8s var(--ease-out-expo), transform 0.8s var(--ease-out-expo);
+    }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+    /* ============================================================
+       HEADER / NAV
+    ============================================================ */
+    header {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 1000;
+      padding: 0 60px;
+      height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: background 0.4s, box-shadow 0.4s, backdrop-filter 0.4s;
+    }
+    header.scrolled {
+      background: rgba(247, 243, 237, 0.92);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 1px 0 rgba(0,0,0,0.06);
+    }
+
+    .nav-logo {
+      font-family: var(--ff-dm);
+      font-size: 1.5rem;
+      color: var(--charcoal);
+      text-decoration: none;
+      letter-spacing: 0.02em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-logo .logo-dot {
+      width: 6px; height: 6px;
+      background: var(--warm);
+      border-radius: 50%;
+      display: inline-block;
+      animation: pulse-dot 2s infinite;
+    }
+    @keyframes pulse-dot {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.6); opacity: 0.5; }
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      gap: 36px;
+    }
+    nav a {
+      font-size: 0.8rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      text-decoration: none;
+      position: relative;
+      padding-bottom: 2px;
+    }
+    nav a::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0; height: 1px;
+      background: var(--warm);
+      transition: width 0.3s var(--ease-out-expo);
+    }
+    nav a:hover::after { width: 100%; }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+    .nav-icon {
+      width: 42px; height: 42px;
+      display: flex; align-items: center; justify-content: center;
+      border: none;
+      background: transparent;
+      cursor: none;
+      border-radius: 50%;
+      transition: background 0.25s;
+      position: relative;
+    }
+    .nav-icon:hover { background: var(--sand); }
+    .nav-icon svg { width: 20px; height: 20px; stroke: var(--charcoal); }
+
+    .cart-badge {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 16px; height: 16px;
+      background: var(--terracotta);
+      border-radius: 50%;
+      font-size: 0.55rem;
+      font-weight: 700;
+      color: white;
+      display: flex; align-items: center; justify-content: center;
+    }
+
+    /* ============================================================
+       HERO SECTION
+    ============================================================ */
+    #hero {
+      position: relative;
+      height: 100vh;
+      min-height: 700px;
+      overflow: hidden;
+      background: var(--walnut);
+      display: flex;
+      align-items: flex-end;
+    }
+
+    .hero-bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 70% 40%, rgba(201,168,124,0.18) 0%, transparent 60%),
+        radial-gradient(ellipse at 20% 80%, rgba(196,113,74,0.12) 0%, transparent 50%);
+    }
+
+    /* Animated geometric shapes */
+    .hero-shape {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(60px);
+      animation: float-shape 8s ease-in-out infinite;
+    }
+    .hero-shape-1 {
+      width: 500px; height: 500px;
+      background: rgba(201,168,124,0.12);
+      top: -100px; right: -100px;
+      animation-delay: 0s;
+    }
+    .hero-shape-2 {
+      width: 300px; height: 300px;
+      background: rgba(196,113,74,0.10);
+      bottom: 100px; left: -80px;
+      animation-delay: -3s;
+    }
+    .hero-shape-3 {
+      width: 200px; height: 200px;
+      background: rgba(212,175,106,0.15);
+      top: 40%; left: 45%;
+      animation-delay: -5s;
+    }
+    @keyframes float-shape {
+      0%, 100% { transform: translate(0,0) scale(1); }
+      33%  { transform: translate(20px,-30px) scale(1.05); }
+      66%  { transform: translate(-15px,20px) scale(0.97); }
+    }
+
+    /* Large background text */
+    .hero-bg-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: var(--ff-dm);
+      font-size: clamp(120px, 18vw, 280px);
+      color: rgba(255,255,255,0.025);
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      padding: 0 60px 80px;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: end;
+      width: 100%;
+    }
+
+    .hero-headline {
+      font-family: var(--ff-dm);
+      font-size: clamp(52px, 7vw, 110px);
+      line-height: 0.95;
+      color: var(--cream);
+      letter-spacing: -0.03em;
+    }
+    .hero-headline em {
+      color: var(--warm);
+      font-style: italic;
+    }
+
+    .hero-sub-block {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      padding-bottom: 8px;
+    }
+    .hero-tagline {
+      font-size: 1rem;
+      line-height: 1.65;
+      color: rgba(247,243,237,0.65);
+      max-width: 380px;
+      font-weight: 300;
+    }
+    .hero-cta-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .btn-hero-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--warm);
+      color: var(--walnut);
+      font-family: var(--ff-sans);
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 18px 36px;
+      border: none;
+      cursor: none;
+      position: relative;
+      overflow: hidden;
+      text-decoration: none;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+    .btn-hero-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 16px 40px rgba(201,168,124,0.35);
+    }
+    .btn-hero-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      background: transparent;
+      color: var(--cream);
+      font-family: var(--ff-sans);
+      font-size: 0.78rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 17px 35px;
+      border: 1.5px solid rgba(247,243,237,0.3);
+      cursor: none;
+      text-decoration: none;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .btn-hero-ghost:hover {
+      border-color: var(--warm);
+      background: rgba(201,168,124,0.08);
+    }
+
+    .hero-stats {
+      display: flex;
+      gap: 40px;
+      margin-top: 16px;
+      padding-top: 32px;
+      border-top: 1px solid rgba(247,243,237,0.1);
+    }
+    .stat-item {}
+    .stat-num {
+      font-family: var(--ff-dm);
+      font-size: 2rem;
+      color: var(--cream);
+      letter-spacing: -0.02em;
+      display: block;
+    }
+    .stat-label {
+      font-size: 0.7rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(247,243,237,0.45);
+    }
+
+    /* Floating product card */
+    .hero-float-card {
+      position: absolute;
+      bottom: 100px;
+      right: 220px;
+      background: rgba(247,243,237,0.06);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(247,243,237,0.12);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      z-index: 5;
+      animation: card-float 6s ease-in-out infinite;
+      min-width: 220px;
+    }
+    @keyframes card-float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    .float-card-img {
+      width: 56px; height: 56px;
+      background: var(--warm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+      flex-shrink: 0;
+    }
+    .float-card-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--warm);
+    }
+    .float-card-name {
+      font-family: var(--ff-serif);
+      font-size: 0.9rem;
+      color: var(--cream);
+      margin: 2px 0;
+    }
+    .float-card-price {
+      font-size: 0.75rem;
+      color: rgba(247,243,237,0.5);
+    }
+
+    /* Scroll indicator */
+    .hero-scroll {
+      position: absolute;
+      bottom: 36px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: rgba(247,243,237,0.4);
+      font-size: 0.65rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      z-index: 5;
+    }
+    .scroll-line {
+      width: 1px; height: 50px;
+      background: linear-gradient(to bottom, rgba(201,168,124,0.8), transparent);
+      animation: scroll-line 2s ease-in-out infinite;
+    }
+    @keyframes scroll-line {
+      0% { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); transform-origin: top; }
+      51% { transform: scaleY(1); transform-origin: bottom; }
+      100% { transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    /* ============================================================
+       ANNOUNCEMENT BAR
+    ============================================================ */
+    .announce-bar {
+      background: var(--charcoal);
+      padding: 10px 0;
+      overflow: hidden;
+    }
+    .announce-track {
+      display: flex;
+      gap: 60px;
+      animation: ticker 25s linear infinite;
+      white-space: nowrap;
+    }
+    @keyframes ticker {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    .announce-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.72rem;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cream);
+      flex-shrink: 0;
+    }
+    .announce-dot {
+      width: 4px; height: 4px;
+      background: var(--warm);
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    /* ============================================================
+       TOP PICKS SECTION
+    ============================================================ */
+    #top-picks {
+      padding: 120px 0;
+      background: var(--cream);
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 60px;
+    }
+    .section-title {
+      font-family: var(--ff-dm);
+      font-size: clamp(36px, 4vw, 58px);
+      line-height: 1.05;
+      letter-spacing: -0.02em;
+      color: var(--charcoal);
+    }
+    .section-title em { color: var(--warm); font-style: italic; }
+    .section-link {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--charcoal);
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border-bottom: 1px solid var(--charcoal);
+      padding-bottom: 2px;
+      transition: color 0.3s, border-color 0.3s;
+    }
+    .section-link:hover { color: var(--warm); border-color: var(--warm); }
+
+    .picks-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      grid-template-rows: auto auto;
+      gap: 16px;
+    }
+
+    .pick-card {
+      position: relative;
+      overflow: hidden;
+      background: var(--sand);
+      cursor: none;
+      group: true;
+    }
+    .pick-card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(28,28,28,0.6) 0%, transparent 50%);
+      opacity: 0;
+      transition: opacity 0.4s;
+      z-index: 1;
+    }
+    .pick-card:hover::before { opacity: 1; }
+    .pick-card.large { grid-row: span 2; }
+
+    .pick-card-img {
+      width: 100%;
+      height: 100%;
+      min-height: 260px;
+      object-fit: cover;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--sand);
+      font-size: 5rem;
+      transition: transform 0.6s var(--ease-out-expo);
+    }
+    .pick-card.large .pick-card-img { min-height: 540px; font-size: 8rem; }
+    .pick-card:hover .pick-card-img { transform: scale(1.04); }
+
+    .pick-card-badge {
+      position: absolute;
+      top: 20px; left: 20px;
+      background: var(--terracotta);
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      z-index: 2;
+    }
+
+    .pick-card-info {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 20px 24px;
+      z-index: 2;
+      transform: translateY(6px);
+      transition: transform 0.4s var(--ease-out-expo);
+    }
+    .pick-card:hover .pick-card-info { transform: translateY(0); }
+    .pick-card-name {
+      font-family: var(--ff-serif);
+      font-size: 1.1rem;
+      color: var(--cream);
+      margin-bottom: 4px;
+    }
+    .pick-card.large .pick-card-name { font-size: 1.6rem; }
+    .pick-card-price {
+      font-size: 0.8rem;
+      color: var(--warm);
+      font-weight: 500;
+    }
+    .pick-card-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 10px;
+      font-size: 0.7rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--cream);
+      opacity: 0;
+      transform: translateY(8px);
+      transition: opacity 0.3s 0.1s, transform 0.3s 0.1s;
+    }
+    .pick-card:hover .pick-card-cta { opacity: 1; transform: translateY(0); }
+
+    /* BUYER'S NOTICE STRIP */
+    .buyers-notice {
+      background: var(--walnut);
+      padding: 28px 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+    }
+    .notice-badge {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .notice-icon {
+      width: 44px; height: 44px;
+      background: var(--warm);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+    .notice-text-label {
+      font-size: 0.6rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--warm);
+    }
+    .notice-text-main {
+      font-family: var(--ff-serif);
+      font-size: 0.95rem;
+      color: var(--cream);
+      margin-top: 2px;
+    }
+
+    /* ============================================================
+       BRAND SCROLL
+    ============================================================ */
+    #brands {
+      padding: 80px 0;
+      background: var(--mist);
+      overflow: hidden;
+    }
+
+    .brands-label {
+      text-align: center;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--oak);
+      margin-bottom: 48px;
+    }
+
+    .brand-track-wrap {
+      position: relative;
+      overflow: hidden;
+    }
+    .brand-track-wrap::before,
+    .brand-track-wrap::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0;
+      width: 120px;
+      z-index: 2;
+    }
+    .brand-track-wrap::before {
+      left: 0;
+      background: linear-gradient(to right, var(--mist), transparent);
+    }
+    .brand-track-wrap::after {
+      right: 0;
+      background: linear-gradient(to left, var(--mist), transparent);
+    }
+
+    .brand-track {
+      display: flex;
+      gap: 0;
+      animation: brand-scroll 28s linear infinite;
+    }
+    .brand-track:hover { animation-play-state: paused; }
+    @keyframes brand-scroll {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+
+    .brand-item {
+      flex-shrink: 0;
+      width: 200px;
+      height: 80px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--sand);
+      font-family: var(--ff-dm);
+      font-size: 1.1rem;
+      letter-spacing: 0.05em;
+      color: var(--oak);
+      opacity: 0.55;
+      transition: opacity 0.3s, color 0.3s;
+    }
+    .brand-item:hover { opacity: 1; color: var(--charcoal); }
+
+    /* ============================================================
+       SHOP BY THEME
+    ============================================================ */
+    #shop-by-theme {
+      padding: 120px 0;
+      background: var(--cream);
+    }
+
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 2px;
+      margin-top: 60px;
+    }
+
+    .theme-card {
+      position: relative;
+      overflow: hidden;
+      cursor: none;
+      aspect-ratio: 3/4;
+    }
+    .theme-card-bg {
+      width: 100%; height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      transition: transform 0.7s var(--ease-out-expo);
+    }
+    .theme-card:hover .theme-card-bg { transform: scale(1.07); }
+
+    /* Theme-specific backgrounds */
+    .theme-western  .theme-card-bg { background: linear-gradient(135deg, #2C1810 0%, #5C3317 50%, #8B4513 100%); }
+    .theme-trad     .theme-card-bg { background: linear-gradient(135deg, #1A1A2E 0%, #16213E 50%, #0F3460 100%); }
+    .theme-colors   .theme-card-bg { background: linear-gradient(135deg, #FF6B6B 0%, #FFD93D 33%, #6BCB77 66%, #4D96FF 100%); }
+    .theme-seasons  .theme-card-bg { background: linear-gradient(135deg, #E8F5E9 0%, #FFF8E1 33%, #FFF3E0 66%, #E8EAF6 100%); }
+
+    .theme-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 55%);
+    }
+    .theme-card-info {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      padding: 28px 24px;
+    }
+    .theme-eyebrow {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--warm);
+      margin-bottom: 6px;
+    }
+    .theme-name {
+      font-family: var(--ff-dm);
+      font-size: 1.4rem;
+      color: var(--cream);
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .theme-count {
+      font-size: 0.72rem;
+      color: rgba(247,243,237,0.55);
+    }
+    .theme-arrow {
+      position: absolute;
+      top: 24px; right: 24px;
+      width: 40px; height: 40px;
+      background: rgba(247,243,237,0.1);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(247,243,237,0.2);
+      display: flex; align-items: center; justify-content: center;
+      opacity: 0;
+      transform: translate(10px, -10px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .theme-card:hover .theme-arrow { opacity: 1; transform: translate(0, 0); }
+
+    /* Color swatches for the Colors theme card */
+    .color-dots {
+      display: flex; gap: 6px; margin-top: 10px;
+    }
+    .color-dot {
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      border: 1.5px solid rgba(255,255,255,0.4);
+    }
+
+    /* Season pills */
+    .season-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+    .season-pill {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 3px 8px;
+      background: rgba(247,243,237,0.15);
+      backdrop-filter: blur(4px);
+      color: var(--cream);
+      border: 1px solid rgba(247,243,237,0.2);
+    }
+
+    /* ============================================================
+       SEARCH BY DESIGNER
+    ============================================================ */
+    #designers {
+      padding: 120px 0;
+      background: var(--walnut);
+    }
+
+    .designers-header {
+      text-align: center;
+      margin-bottom: 80px;
+    }
+    .designers-header .section-title { color: var(--cream); }
+    .designers-header p {
+      font-size: 1rem;
+      color: rgba(247,243,237,0.5);
+      max-width: 500px;
+      margin: 20px auto 0;
+      line-height: 1.7;
+      font-weight: 300;
+    }
+
+    /* Search bar */
+    .designer-search {
+      max-width: 560px;
+      margin: 0 auto 80px;
+      position: relative;
+    }
+    .designer-search input {
+      width: 100%;
+      padding: 20px 24px 20px 56px;
+      background: rgba(247,243,237,0.06);
+      border: 1px solid rgba(247,243,237,0.15);
+      font-family: var(--ff-sans);
+      font-size: 0.9rem;
+      color: var(--cream);
+      outline: none;
+      transition: border-color 0.3s, background 0.3s;
+    }
+    .designer-search input::placeholder { color: rgba(247,243,237,0.3); }
+    .designer-search input:focus {
+      border-color: var(--warm);
+      background: rgba(247,243,237,0.09);
+    }
+    .designer-search-icon {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    .designer-search-icon svg { stroke: rgba(247,243,237,0.4); width: 20px; height: 20px; }
+
+    .designers-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 2px;
+    }
+
+    .designer-card {
+      background: rgba(247,243,237,0.04);
+      border: 1px solid rgba(247,243,237,0.07);
+      padding: 32px 24px;
+      text-align: center;
+      cursor: none;
+      transition: background 0.3s, border-color 0.3s, transform 0.3s;
+      position: relative;
+      overflow: hidden;
+    }
+    .designer-card::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--warm);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s var(--ease-out-expo);
+    }
+    .designer-card:hover::before { transform: scaleX(1); }
+    .designer-card:hover {
+      background: rgba(247,243,237,0.08);
+      border-color: rgba(201,168,124,0.3);
+      transform: translateY(-4px);
+    }
+    .designer-avatar {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, var(--warm), var(--terracotta));
+      border-radius: 50%;
+      margin: 0 auto 16px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.6rem;
+    }
+    .designer-name {
+      font-family: var(--ff-serif);
+      font-size: 0.95rem;
+      color: var(--cream);
+      margin-bottom: 4px;
+    }
+    .designer-specialty {
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--warm);
+    }
+    .designer-pieces {
+      font-size: 0.72rem;
+      color: rgba(247,243,237,0.35);
+      margin-top: 8px;
+    }
+
+    /* ============================================================
+       INSPIRATIONS / IDEAS
+    ============================================================ */
+    #inspirations {
+      padding: 120px 0;
+      background: var(--cream);
+    }
+
+    .inspo-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: start;
+      margin-top: 70px;
+    }
+
+    .inspo-featured {
+      position: sticky;
+      top: 100px;
+    }
+    .inspo-featured-img {
+      width: 100%;
+      aspect-ratio: 4/5;
+      background: var(--sand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8rem;
+      overflow: hidden;
+      position: relative;
+    }
+    .inspo-featured-img::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(28,28,28,0.5) 0%, transparent 50%);
+    }
+    .inspo-featured-meta {
+      padding: 28px 0;
+    }
+    .inspo-featured-cat {
+      display: inline-block;
+      font-size: 0.6rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      background: var(--terracotta);
+      color: white;
+      margin-bottom: 14px;
+    }
+    .inspo-featured-title {
+      font-family: var(--ff-dm);
+      font-size: 1.8rem;
+      line-height: 1.2;
+      color: var(--charcoal);
+      margin-bottom: 12px;
+    }
+    .inspo-featured-desc {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--oak);
+      max-width: 440px;
+    }
+
+    .inspo-list {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .inspo-item {
+      display: grid;
+      grid-template-columns: 100px 1fr;
+      gap: 0;
+      cursor: none;
+      overflow: hidden;
+      transition: background 0.3s;
+    }
+    .inspo-item:hover { background: var(--sand); }
+    .inspo-item-img {
+      height: 100px;
+      background: var(--sand);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 2.5rem;
+      flex-shrink: 0;
+      transition: transform 0.4s var(--ease-out-expo);
+    }
+    .inspo-item:hover .inspo-item-img { transform: scale(1.05); }
+    .inspo-item-body {
+      padding: 20px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .inspo-item-tag {
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--warm);
+      margin-bottom: 6px;
+    }
+    .inspo-item-title {
+      font-family: var(--ff-serif);
+      font-size: 1rem;
+      color: var(--charcoal);
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+    .inspo-item-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 0.68rem;
+      color: var(--oak);
+      opacity: 0.65;
+    }
+
+    /* ============================================================
+       BRANDING SECTION — Quality · Experience · Sustainability
+    ============================================================ */
+    #brand-values {
+      padding: 0;
+      background: var(--charcoal);
+      overflow: hidden;
+    }
+
+    .brand-values-top {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      min-height: 600px;
+    }
+    .bv-visual {
+      background: linear-gradient(135deg, var(--walnut) 0%, var(--oak) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10rem;
+      position: relative;
+      overflow: hidden;
+    }
+    .bv-visual::before {
+      content: 'LUMINARY';
+      position: absolute;
+      font-family: var(--ff-dm);
+      font-size: clamp(60px, 10vw, 130px);
+      color: rgba(255,255,255,0.04);
+      letter-spacing: 0.05em;
+      white-space: nowrap;
+    }
+
+    .bv-text {
+      padding: 80px 70px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .bv-text .tag { color: var(--warm); }
+    .bv-headline {
+      font-family: var(--ff-dm);
+      font-size: clamp(36px, 3.5vw, 52px);
+      color: var(--cream);
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      margin-bottom: 24px;
+    }
+    .bv-headline em { color: var(--warm); font-style: italic; }
+    .bv-body {
+      font-size: 0.95rem;
+      line-height: 1.75;
+      color: rgba(247,243,237,0.55);
+      font-weight: 300;
+      max-width: 440px;
+      margin-bottom: 40px;
+    }
+
+    .brand-pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid rgba(247,243,237,0.08);
+    }
+    .pillar {
+      padding: 56px 48px;
+      border-right: 1px solid rgba(247,243,237,0.08);
+      position: relative;
+      overflow: hidden;
+    }
+    .pillar:last-child { border-right: none; }
+    .pillar::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0;
+      height: 2px;
+      width: 0;
+      background: var(--warm);
+      transition: width 0.6s var(--ease-out-expo);
+    }
+    .pillar:hover::before { width: 100%; }
+    .pillar-number {
+      font-family: var(--ff-dm);
+      font-size: 3rem;
+      color: rgba(247,243,237,0.06);
+      line-height: 1;
+      margin-bottom: -10px;
+    }
+    .pillar-icon {
+      font-size: 2rem;
+      margin-bottom: 20px;
+    }
+    .pillar-title {
+      font-family: var(--ff-serif);
+      font-size: 1.25rem;
+      color: var(--cream);
+      margin-bottom: 12px;
+    }
+    .pillar-desc {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: rgba(247,243,237,0.45);
+      font-weight: 300;
+    }
+    .pillar-stat {
+      display: inline-block;
+      margin-top: 20px;
+      font-family: var(--ff-dm);
+      font-size: 2rem;
+      color: var(--warm);
+    }
+    .pillar-stat-label {
+      font-size: 0.65rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: rgba(247,243,237,0.35);
+      display: block;
+    }
+
+    /* ============================================================
+       PRE-FOOTER — NEWSLETTER + SOCIAL
+    ============================================================ */
+    #pre-footer {
+      background: var(--warm);
+      padding: 100px 0;
+      overflow: hidden;
+      position: relative;
+    }
+    #pre-footer::before {
+      content: 'JOIN US';
+      position: absolute;
+      font-family: var(--ff-dm);
+      font-size: clamp(80px, 16vw, 200px);
+      color: rgba(61,43,31,0.07);
+      letter-spacing: 0.05em;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .pre-footer-inner {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+    .pf-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--walnut);
+      opacity: 0.7;
+      margin-bottom: 16px;
+    }
+    .pf-headline {
+      font-family: var(--ff-dm);
+      font-size: clamp(40px, 5vw, 70px);
+      color: var(--walnut);
+      letter-spacing: -0.03em;
+      line-height: 1;
+      margin-bottom: 12px;
+    }
+    .pf-sub {
+      font-size: 1rem;
+      color: rgba(61,43,31,0.65);
+      margin-bottom: 48px;
+      font-weight: 300;
+    }
+    .pf-form {
+      display: flex;
+      max-width: 500px;
+      margin: 0 auto 56px;
+      border: 1.5px solid var(--walnut);
+    }
+    .pf-form input {
+      flex: 1;
+      padding: 18px 24px;
+      background: transparent;
+      border: none;
+      font-family: var(--ff-sans);
+      font-size: 0.88rem;
+      color: var(--walnut);
+      outline: none;
+    }
+    .pf-form input::placeholder { color: rgba(61,43,31,0.45); }
+    .pf-form button {
+      background: var(--walnut);
+      color: var(--cream);
+      border: none;
+      padding: 18px 32px;
+      font-family: var(--ff-sans);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      cursor: none;
+      transition: background 0.3s;
+    }
+    .pf-form button:hover { background: var(--charcoal); }
+
+    .pf-social {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+    }
+    .social-icon {
+      width: 48px; height: 48px;
+      background: rgba(61,43,31,0.1);
+      border: 1px solid rgba(61,43,31,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      cursor: none;
+      transition: background 0.3s, transform 0.3s;
+      border-radius: 50%;
+      text-decoration: none;
+    }
+    .social-icon:hover {
+      background: var(--walnut);
+      transform: translateY(-4px);
+    }
+
+    /* ============================================================
+       FOOTER
+    ============================================================ */
+    footer {
+      background: var(--charcoal);
+      padding: 80px 60px 40px;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 60px;
+      padding-bottom: 60px;
+      border-bottom: 1px solid rgba(247,243,237,0.08);
+      margin-bottom: 40px;
+    }
+
+    .footer-brand {}
+    .footer-brand .nav-logo { margin-bottom: 20px; display: block; }
+    .footer-tagline {
+      font-size: 0.85rem;
+      line-height: 1.7;
+      color: rgba(247,243,237,0.4);
+      font-weight: 300;
+      max-width: 280px;
+      margin-bottom: 28px;
+    }
+    .footer-badges {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .footer-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.65rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(247,243,237,0.4);
+      border: 1px solid rgba(247,243,237,0.1);
+      padding: 6px 12px;
+    }
+
+    .footer-col-title {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(247,243,237,0.5);
+      margin-bottom: 20px;
+    }
+    .footer-col ul { list-style: none; }
+    .footer-col ul li { margin-bottom: 12px; }
+    .footer-col ul li a {
+      font-size: 0.85rem;
+      color: rgba(247,243,237,0.45);
+      text-decoration: none;
+      transition: color 0.25s;
+      font-weight: 300;
+    }
+    .footer-col ul li a:hover { color: var(--warm); }
+
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .footer-copy {
+      font-size: 0.75rem;
+      color: rgba(247,243,237,0.25);
+    }
+    .footer-legal {
+      display: flex;
+      gap: 24px;
+    }
+    .footer-legal a {
+      font-size: 0.72rem;
+      color: rgba(247,243,237,0.25);
+      text-decoration: none;
+      transition: color 0.25s;
+    }
+    .footer-legal a:hover { color: var(--warm); }
+
+    /* ============================================================
+       MICRO-INTERACTION: MAGNETIC BUTTON
+    ============================================================ */
+    .mag-btn { display: inline-block; }
+
+    /* ============================================================
+       LOADING SCREEN
+    ============================================================ */
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: var(--walnut);
+      z-index: 99999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 24px;
+      transition: opacity 0.6s 0.2s, transform 0.6s 0.2s var(--ease-out-expo);
+    }
+    #loader.hidden { opacity: 0; transform: translateY(-100%); pointer-events: none; }
+    .loader-logo {
+      font-family: var(--ff-dm);
+      font-size: 3rem;
+      color: var(--cream);
+      letter-spacing: 0.05em;
+    }
+    .loader-bar {
+      width: 200px; height: 1px;
+      background: rgba(247,243,237,0.15);
+      position: relative;
+      overflow: hidden;
+    }
+    .loader-bar-fill {
+      position: absolute;
+      inset: 0;
+      background: var(--warm);
+      transform: translateX(-100%);
+      animation: load-bar 1.5s var(--ease-out-expo) forwards;
+    }
+    @keyframes load-bar {
+      to { transform: translateX(0); }
+    }
+    .loader-count {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: rgba(247,243,237,0.35);
+      font-weight: 300;
+    }
+
+    /* ============================================================
+       RESPONSIVE ADJUSTMENTS
+    ============================================================ */
+    @media (max-width: 1100px) {
+      .picks-grid { grid-template-columns: 1fr 1fr; }
+      .pick-card.large { grid-column: span 2; grid-row: auto; }
+      .designers-grid { grid-template-columns: repeat(3, 1fr); }
+      .theme-grid { grid-template-columns: repeat(2, 1fr); }
+      .brand-pillars { grid-template-columns: 1fr 1fr; }
+      .pillar:nth-child(2) { border-right: none; }
+      .brand-values-top { grid-template-columns: 1fr; }
+      .bv-visual { min-height: 300px; }
+      .footer-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      header { padding: 0 24px; }
+      .hero-content { grid-template-columns: 1fr; padding: 0 24px 80px; }
+      .hero-float-card { display: none; }
+      nav { display: none; }
+      .picks-grid { grid-template-columns: 1fr; }
+      .pick-card.large { grid-column: auto; }
+      .inspo-grid { grid-template-columns: 1fr; }
+      .inspo-featured { position: static; }
+      .designers-grid { grid-template-columns: 1fr 1fr; }
+      .brand-pillars { grid-template-columns: 1fr; }
+      .section-header { flex-direction: column; align-items: flex-start; gap: 20px; }
+      .footer-grid { grid-template-columns: 1fr; gap: 40px; }
+      footer { padding: 60px 24px 40px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- CUSTOM CURSOR -->
+  <div id="cursor-dot"></div>
+  <div id="cursor-ring"></div>
+
+  <!-- LOADER -->
+  <div id="loader">
+    <div class="loader-logo">Luminary</div>
+    <div class="loader-bar"><div class="loader-bar-fill"></div></div>
+    <div class="loader-count" id="loader-count">0%</div>
+  </div>
+
+  <!-- ================================================================
+       HEADER
+  ================================================================ -->
+  <header id="main-header">
+    <a href="#" class="nav-logo">
+      Luminary <span class="logo-dot"></span>
+    </a>
+    <nav>
+      <a href="#shop-by-theme">Collections</a>
+      <a href="#designers">Designers</a>
+      <a href="#inspirations">Ideas</a>
+      <a href="#brands">Brands</a>
+      <a href="#brand-values">Our Story</a>
+    </nav>
+    <div class="nav-actions">
+      <button class="nav-icon" aria-label="Search">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+        </svg>
+      </button>
+      <button class="nav-icon" aria-label="Wishlist">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </button>
+      <button class="nav-icon" aria-label="Cart" style="position:relative;">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/>
+        </svg>
+        <span class="cart-badge">3</span>
+      </button>
+      <a href="#" class="btn-primary mag-btn" style="padding:12px 24px;">
+        <span>Visit Store</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- ================================================================
+       HERO
+  ================================================================ -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-shape hero-shape-1"></div>
+    <div class="hero-shape hero-shape-2"></div>
+    <div class="hero-shape hero-shape-3"></div>
+    <div class="hero-bg-text">LUMINARY</div>
+
+    <!-- Floating product teaser -->
+    <div class="hero-float-card">
+      <div class="float-card-img">🪑</div>
+      <div>
+        <div class="float-card-label">Editor's Pick</div>
+        <div class="float-card-name">Arco Lounge Chair</div>
+        <div class="float-card-price">from $1,890</div>
+      </div>
+    </div>
+
+    <div class="hero-content">
+      <!-- Left: headline -->
+      <div>
+        <p class="tag" style="color:var(--warm);">New 2025 Collection</p>
+        <h1 class="hero-headline">
+          Spaces<br/>
+          that<br/>
+          <em>breathe.</em>
+        </h1>
+      </div>
+
+      <!-- Right: tagline + CTAs + stats -->
+      <div class="hero-sub-block">
+        <p class="hero-tagline">
+          Premium furniture crafted for how you actually live —
+          timeless in form, radical in comfort, honest in material.
+        </p>
+        <div class="hero-cta-row">
+          <a href="#top-picks" class="btn-hero-primary">
+            Explore Collection
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </a>
+          <a href="#inspirations" class="btn-hero-ghost">Get Inspired</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-num">840+</span>
+            <span class="stat-label">Curated Pieces</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">38</span>
+            <span class="stat-label">Global Designers</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">100%</span>
+            <span class="stat-label">Sustainably Made</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      Scroll
+    </div>
+  </section>
+
+  <!-- ANNOUNCEMENT BAR -->
+  <div class="announce-bar">
+    <div class="announce-track" id="announce-track">
+      <!-- items duplicated in JS for infinite loop -->
+      <span class="announce-item"><span class="announce-dot"></span> Free white-glove delivery on orders over $2,000</span>
+      <span class="announce-item"><span class="announce-dot"></span> New Spring Collection — 200+ pieces just landed</span>
+      <span class="announce-item"><span class="announce-dot"></span> Designed in New York · Crafted by Artisans worldwide</span>
+      <span class="announce-item"><span class="announce-dot"></span> 30-day free returns &amp; 10-year craftsmanship guarantee</span>
+      <span class="announce-item"><span class="announce-dot"></span> Now open: Flagship stores in New York &amp; Milan</span>
+      <span class="announce-item"><span class="announce-dot"></span> Free white-glove delivery on orders over $2,000</span>
+      <span class="announce-item"><span class="announce-dot"></span> New Spring Collection — 200+ pieces just landed</span>
+      <span class="announce-item"><span class="announce-dot"></span> Designed in New York · Crafted by Artisans worldwide</span>
+      <span class="announce-item"><span class="announce-dot"></span> 30-day free returns &amp; 10-year craftsmanship guarantee</span>
+      <span class="announce-item"><span class="announce-dot"></span> Now open: Flagship stores in New York &amp; Milan</span>
+    </div>
+  </div>
+
+  <!-- ================================================================
+       TOP PICKS / BUYER'S PICKS
+  ================================================================ -->
+  <section id="top-picks">
+    <div class="container">
+      <div class="section-header reveal">
+        <div>
+          <p class="tag">Buyer's Choice</p>
+          <h2 class="section-title">Pieces people<br/><em>can't stop loving</em></h2>
+        </div>
+        <a href="#" class="section-link">
+          View all picks
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+
+      <div class="picks-grid reveal">
+
+        <!-- LARGE FEATURED CARD -->
+        <div class="pick-card large">
+          <div class="pick-card-img" style="font-size:9rem; background:linear-gradient(160deg,#E8DDD0,#C9A87C40);">🛋️</div>
+          <span class="pick-card-badge">⭐ #1 Bestseller</span>
+          <div class="pick-card-info">
+            <div class="pick-card-name">The Oslo Sectional</div>
+            <div class="pick-card-price">from $3,490</div>
+            <a href="#" class="pick-card-cta">
+              Quick View
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- SMALL CARD 1 -->
+        <div class="pick-card">
+          <div class="pick-card-img" style="background:linear-gradient(135deg,#2C1810,#5C3317);">🪑</div>
+          <span class="pick-card-badge" style="background:var(--sage);">New</span>
+          <div class="pick-card-info">
+            <div class="pick-card-name">Arco Chair</div>
+            <div class="pick-card-price">$1,890</div>
+            <a href="#" class="pick-card-cta">Quick View →</a>
+          </div>
+        </div>
+
+        <!-- SMALL CARD 2 -->
+        <div class="pick-card">
+          <div class="pick-card-img" style="background:linear-gradient(135deg,#1E2D40,#3A5068);">🛏️</div>
+          <span class="pick-card-badge" style="background:var(--gold);color:var(--walnut);">Trend</span>
+          <div class="pick-card-info">
+            <div class="pick-card-name">Atlas Bed Frame</div>
+            <div class="pick-card-price">from $2,100</div>
+            <a href="#" class="pick-card-cta">Quick View →</a>
+          </div>
+        </div>
+
+        <!-- SMALL CARD 3 -->
+        <div class="pick-card">
+          <div class="pick-card-img" style="background:linear-gradient(135deg,#8A9E7E,#5A7252);">🪴</div>
+          <div class="pick-card-info">
+            <div class="pick-card-name">Elm Side Table</div>
+            <div class="pick-card-price">$680</div>
+            <a href="#" class="pick-card-cta">Quick View →</a>
+          </div>
+        </div>
+
+        <!-- SMALL CARD 4 -->
+        <div class="pick-card">
+          <div class="pick-card-img" style="background:linear-gradient(135deg,#D4AF6A,#C4714A);">💡</div>
+          <span class="pick-card-badge" style="background:var(--charcoal);">Limited</span>
+          <div class="pick-card-info">
+            <div class="pick-card-name">Halo Floor Lamp</div>
+            <div class="pick-card-price">$940</div>
+            <a href="#" class="pick-card-cta">Quick View →</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- BUYER'S NOTICE -->
+      <div class="buyers-notice reveal">
+        <div class="notice-badge">
+          <div class="notice-icon">🚚</div>
+          <div>
+            <div class="notice-text-label">White Glove Delivery</div>
+            <div class="notice-text-main">Free setup &amp; installation on all orders over $2,000</div>
+          </div>
+        </div>
+        <div class="notice-badge">
+          <div class="notice-icon">🛡️</div>
+          <div>
+            <div class="notice-text-label">Craftsmanship Guarantee</div>
+            <div class="notice-text-main">10-year warranty on every single piece</div>
+          </div>
+        </div>
+        <div class="notice-badge">
+          <div class="notice-icon">↩️</div>
+          <div>
+            <div class="notice-text-label">No-Stress Returns</div>
+            <div class="notice-text-main">30 days free returns, no questions asked</div>
+          </div>
+        </div>
+        <div class="notice-badge">
+          <div class="notice-icon">🌿</div>
+          <div>
+            <div class="notice-text-label">Sustainably Sourced</div>
+            <div class="notice-text-main">FSC-certified wood &amp; recycled materials throughout</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       BRANDS / COLLABS LIVE SCROLL
+  ================================================================ -->
+  <section id="brands">
+    <p class="brands-label reveal">Trusted partners &amp; collaborating brands</p>
+    <div class="brand-track-wrap">
+      <div class="brand-track" id="brand-track">
+        <div class="brand-item">MUUTO</div>
+        <div class="brand-item">HAY</div>
+        <div class="brand-item">VITRA</div>
+        <div class="brand-item">CARL HANSEN</div>
+        <div class="brand-item">FERM LIVING</div>
+        <div class="brand-item">GUBI</div>
+        <div class="brand-item">MENU</div>
+        <div class="brand-item">USM</div>
+        <div class="brand-item">CASSINA</div>
+        <div class="brand-item">ARTEK</div>
+        <div class="brand-item">STRING</div>
+        <div class="brand-item">TRADITION</div>
+        <!-- duplicated for seamless loop -->
+        <div class="brand-item">MUUTO</div>
+        <div class="brand-item">HAY</div>
+        <div class="brand-item">VITRA</div>
+        <div class="brand-item">CARL HANSEN</div>
+        <div class="brand-item">FERM LIVING</div>
+        <div class="brand-item">GUBI</div>
+        <div class="brand-item">MENU</div>
+        <div class="brand-item">USM</div>
+        <div class="brand-item">CASSINA</div>
+        <div class="brand-item">ARTEK</div>
+        <div class="brand-item">STRING</div>
+        <div class="brand-item">TRADITION</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       SHOP BY THEME
+  ================================================================ -->
+  <section id="shop-by-theme">
+    <div class="container">
+      <div class="section-header reveal">
+        <div>
+          <p class="tag">Curated Themes</p>
+          <h2 class="section-title">Shop by<br/><em>aesthetic</em></h2>
+        </div>
+        <a href="#" class="section-link">All themes →</a>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="theme-grid">
+
+        <!-- WESTERN -->
+        <div class="theme-card theme-western reveal" style="transition-delay:0s;">
+          <div class="theme-card-bg">🤠</div>
+          <div class="theme-overlay"></div>
+          <div class="theme-card-info">
+            <div class="theme-eyebrow">Theme 01</div>
+            <div class="theme-name">Western<br/>Frontier</div>
+            <div class="theme-count">142 pieces</div>
+          </div>
+          <div class="theme-arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+
+        <!-- TRADITIONAL / 90s -->
+        <div class="theme-card theme-trad reveal" style="transition-delay:0.08s;">
+          <div class="theme-card-bg">🎞️</div>
+          <div class="theme-overlay"></div>
+          <div class="theme-card-info">
+            <div class="theme-eyebrow">Theme 02</div>
+            <div class="theme-name">Traditional<br/>&amp; 90's Revival</div>
+            <div class="theme-count">218 pieces</div>
+          </div>
+          <div class="theme-arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+
+        <!-- COLORS -->
+        <div class="theme-card theme-colors reveal" style="transition-delay:0.16s;">
+          <div class="theme-card-bg">🎨</div>
+          <div class="theme-overlay"></div>
+          <div class="theme-card-info">
+            <div class="theme-eyebrow">Theme 03</div>
+            <div class="theme-name">Shop by<br/>Color</div>
+            <div class="color-dots">
+              <div class="color-dot" style="background:#FF6B6B;"></div>
+              <div class="color-dot" style="background:#FFD93D;"></div>
+              <div class="color-dot" style="background:#6BCB77;"></div>
+              <div class="color-dot" style="background:#4D96FF;"></div>
+              <div class="color-dot" style="background:#C9A87C;"></div>
+              <div class="color-dot" style="background:#E8DDD0;"></div>
+            </div>
+          </div>
+          <div class="theme-arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+
+        <!-- SEASONS -->
+        <div class="theme-card theme-seasons reveal" style="transition-delay:0.24s;">
+          <div class="theme-card-bg" style="font-size:4rem;">🌸❄️</div>
+          <div class="theme-overlay" style="background:linear-gradient(to top, rgba(28,28,28,0.65) 0%, transparent 55%);"></div>
+          <div class="theme-card-info">
+            <div class="theme-eyebrow" style="color:var(--terracotta);">Theme 04</div>
+            <div class="theme-name" style="color:var(--charcoal);">Seasonal<br/>Collections</div>
+            <div class="season-pills">
+              <span class="season-pill" style="color:var(--charcoal);background:rgba(28,28,28,0.1);border-color:rgba(28,28,28,0.15);">🌸 Spring</span>
+              <span class="season-pill" style="color:var(--charcoal);background:rgba(28,28,28,0.1);border-color:rgba(28,28,28,0.15);">☀️ Summer</span>
+              <span class="season-pill" style="color:var(--charcoal);background:rgba(28,28,28,0.1);border-color:rgba(28,28,28,0.15);">🍂 Fall</span>
+              <span class="season-pill" style="color:var(--charcoal);background:rgba(28,28,28,0.1);border-color:rgba(28,28,28,0.15);">❄️ Winter</span>
+            </div>
+          </div>
+          <div class="theme-arrow">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       SEARCH BY DESIGNER
+  ================================================================ -->
+  <section id="designers">
+    <div class="container">
+      <div class="designers-header reveal">
+        <p class="tag" style="color:var(--warm);">The Makers</p>
+        <h2 class="section-title">Search by<br/><em>Designer</em></h2>
+        <p>Every piece has a story. Discover the visionaries behind our most-loved collections and explore their full portfolios.</p>
+      </div>
+
+      <div class="designer-search reveal">
+        <div class="designer-search-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/>
+          </svg>
+        </div>
+        <input type="text" placeholder="Search designer name, style, or country..." />
+      </div>
+
+      <div class="designers-grid">
+        <div class="designer-card reveal" style="transition-delay:0s;">
+          <div class="designer-avatar">🇩🇰</div>
+          <div class="designer-name">Astrid Hansen</div>
+          <div class="designer-specialty">Nordic Minimalism</div>
+          <div class="designer-pieces">64 pieces</div>
+        </div>
+        <div class="designer-card reveal" style="transition-delay:0.06s;">
+          <div class="designer-avatar">🇯🇵</div>
+          <div class="designer-name">Kenji Mori</div>
+          <div class="designer-specialty">Wabi-Sabi Craft</div>
+          <div class="designer-pieces">41 pieces</div>
+        </div>
+        <div class="designer-card reveal" style="transition-delay:0.12s;">
+          <div class="designer-avatar">🇮🇹</div>
+          <div class="designer-name">Luca Ferrante</div>
+          <div class="designer-specialty">Italian Contemporary</div>
+          <div class="designer-pieces">88 pieces</div>
+        </div>
+        <div class="designer-card reveal" style="transition-delay:0.18s;">
+          <div class="designer-avatar">🇺🇸</div>
+          <div class="designer-name">Maya Okafor</div>
+          <div class="designer-specialty">Mid-Century Modern</div>
+          <div class="designer-pieces">52 pieces</div>
+        </div>
+        <div class="designer-card reveal" style="transition-delay:0.24s;">
+          <div class="designer-avatar">🇸🇪</div>
+          <div class="designer-name">Erik Lindqvist</div>
+          <div class="designer-specialty">Bauhaus Revival</div>
+          <div class="designer-pieces">36 pieces</div>
+        </div>
+      </div>
+
+      <div style="text-align:center; margin-top:48px;" class="reveal">
+        <a href="#" class="btn-ghost" style="border-color:rgba(247,243,237,0.3);color:var(--cream);">View all 38 designers</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       INSPIRATIONS & IDEAS
+  ================================================================ -->
+  <section id="inspirations">
+    <div class="container">
+      <div class="section-header reveal">
+        <div>
+          <p class="tag">Editorial</p>
+          <h2 class="section-title">Inspiration &amp;<br/><em>Ideas</em></h2>
+        </div>
+        <a href="#" class="section-link">All articles →</a>
+      </div>
+
+      <div class="inspo-grid">
+        <div class="inspo-featured reveal-left">
+          <div class="inspo-featured-img">🏠</div>
+          <div class="inspo-featured-meta">
+            <span class="inspo-featured-cat">Living Room Guide</span>
+            <h3 class="inspo-featured-title">How to layer textures for a room that feels alive</h3>
+            <p class="inspo-featured-desc">
+              The secret to a space that photographs beautifully and feels even better in person
+              is contrast — rough against smooth, matte against gleam, heavy against airy.
+              Here's how to do it without overthinking it.
+            </p>
+            <a href="#" class="btn-primary" style="margin-top:28px;">
+              <span>Read the guide</span>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <div class="inspo-list reveal-right">
+          <div class="inspo-item">
+            <div class="inspo-item-img">🛏️</div>
+            <div class="inspo-item-body">
+              <div class="inspo-item-tag">Bedroom</div>
+              <div class="inspo-item-title">The art of the slow bedroom — calm by design</div>
+              <div class="inspo-item-meta"><span>6 min read</span><span>12 products featured</span></div>
+            </div>
+          </div>
+          <div class="inspo-item">
+            <div class="inspo-item-img">🍽️</div>
+            <div class="inspo-item-body">
+              <div class="inspo-item-tag">Dining</div>
+              <div class="inspo-item-title">Dinner party tables that steal the conversation</div>
+              <div class="inspo-item-meta"><span>4 min read</span><span>8 products featured</span></div>
+            </div>
+          </div>
+          <div class="inspo-item">
+            <div class="inspo-item-img">🪴</div>
+            <div class="inspo-item-body">
+              <div class="inspo-item-tag">Outdoor</div>
+              <div class="inspo-item-title">Bringing the indoors out: spring terrace styling</div>
+              <div class="inspo-item-meta"><span>5 min read</span><span>15 products featured</span></div>
+            </div>
+          </div>
+          <div class="inspo-item">
+            <div class="inspo-item-img">💼</div>
+            <div class="inspo-item-body">
+              <div class="inspo-item-tag">Home Office</div>
+              <div class="inspo-item-title">Work from home without sacrificing your aesthetic</div>
+              <div class="inspo-item-meta"><span>7 min read</span><span>10 products featured</span></div>
+            </div>
+          </div>
+          <div class="inspo-item">
+            <div class="inspo-item-img">🛁</div>
+            <div class="inspo-item-body">
+              <div class="inspo-item-tag">Bathroom</div>
+              <div class="inspo-item-title">Spa energy, residential budget — it's possible</div>
+              <div class="inspo-item-meta"><span>4 min read</span><span>9 products featured</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       BRAND VALUES — Quality · Experience · Sustainability
+  ================================================================ -->
+  <section id="brand-values">
+    <div class="brand-values-top">
+      <div class="bv-visual"></div>
+      <div class="bv-text">
+        <p class="tag">Our Philosophy</p>
+        <h2 class="bv-headline">
+          Built to be<br/>
+          <em>inherited.</em>
+        </h2>
+        <p class="bv-body">
+          We believe furniture shouldn't be replaced — it should be passed down.
+          Every Luminary piece is conceived with a hundred-year horizon,
+          made with materials the earth provided responsibly, and
+          finished by hands that take pride in every joint, every edge,
+          every hour of attention.
+        </p>
+        <a href="#" class="btn-primary">
+          <span>Our Story</span>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <div class="brand-pillars">
+      <div class="pillar reveal">
+        <div class="pillar-number">01</div>
+        <div class="pillar-icon">✦</div>
+        <div class="pillar-title">Exceptional Quality</div>
+        <p class="pillar-desc">
+          We work exclusively with master craftspeople. No shortcuts, no MDF cores,
+          no compromises on joinery. Just solid wood, premium upholstery,
+          and construction built to outlast trends.
+        </p>
+        <span class="pillar-stat">10yr</span>
+        <span class="pillar-stat-label">Craftsmanship Guarantee</span>
+      </div>
+
+      <div class="pillar reveal" style="transition-delay:0.1s;">
+        <div class="pillar-number">02</div>
+        <div class="pillar-icon">◈</div>
+        <div class="pillar-title">The Experience</div>
+        <p class="pillar-desc">
+          From your first browse to the moment our team sets up your piece in your home —
+          we've obsessed over every touchpoint. White-glove delivery is standard,
+          not an upgrade.
+        </p>
+        <span class="pillar-stat">4.9★</span>
+        <span class="pillar-stat-label">Average customer rating</span>
+      </div>
+
+      <div class="pillar reveal" style="transition-delay:0.2s;">
+        <div class="pillar-number">03</div>
+        <div class="pillar-icon">🌿</div>
+        <div class="pillar-title">True Sustainability</div>
+        <p class="pillar-desc">
+          FSC-certified timber, recycled packaging, carbon-neutral shipping,
+          and a living wage for every artisan in our supply chain.
+          Good design can't come at the planet's expense.
+        </p>
+        <span class="pillar-stat">100%</span>
+        <span class="pillar-stat-label">Carbon-neutral logistics</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       PRE-FOOTER — NEWSLETTER
+  ================================================================ -->
+  <section id="pre-footer">
+    <div class="container">
+      <div class="pre-footer-inner">
+        <p class="pf-tag">Stay in the loop</p>
+        <h2 class="pf-headline">Your home,<br/>always inspired.</h2>
+        <p class="pf-sub">New arrivals, designer stories, and room ideas — twice a month. No spam, ever.</p>
+        <form class="pf-form" onsubmit="return false;">
+          <input type="email" placeholder="your@email.com" />
+          <button type="submit">Subscribe</button>
+        </form>
+        <div class="pf-social">
+          <a href="#" class="social-icon" aria-label="Instagram">📷</a>
+          <a href="#" class="social-icon" aria-label="Pinterest">📌</a>
+          <a href="#" class="social-icon" aria-label="TikTok">🎵</a>
+          <a href="#" class="social-icon" aria-label="YouTube">▶️</a>
+          <a href="#" class="social-icon" aria-label="Twitter">𝕏</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================================
+       FOOTER
+  ================================================================ -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <a href="#" class="nav-logo" style="color:var(--cream);">
+          Luminary <span class="logo-dot"></span>
+        </a>
+        <p class="footer-tagline">
+          Premium furniture for people who believe home is worth investing in.
+          Designed with care. Made to last. Delivered with love.
+        </p>
+        <div class="footer-badges">
+          <div class="footer-badge">🔒 Secure Checkout</div>
+          <div class="footer-badge">🌿 Sustainable</div>
+          <div class="footer-badge">⭐ 4.9 / 5</div>
+        </div>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-title">Shop</div>
+        <ul>
+          <li><a href="#">Living Room</a></li>
+          <li><a href="#">Bedroom</a></li>
+          <li><a href="#">Dining Room</a></li>
+          <li><a href="#">Home Office</a></li>
+          <li><a href="#">Outdoor</a></li>
+          <li><a href="#">Lighting</a></li>
+          <li><a href="#">Accessories</a></li>
+          <li><a href="#">Sale</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-title">Company</div>
+        <ul>
+          <li><a href="#">Our Story</a></li>
+          <li><a href="#">Designers</a></li>
+          <li><a href="#">Sustainability</a></li>
+          <li><a href="#">Flagship Stores</a></li>
+          <li><a href="#">Press</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Partnerships</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <div class="footer-col-title">Help</div>
+        <ul>
+          <li><a href="#">Delivery &amp; Setup</a></li>
+          <li><a href="#">Returns</a></li>
+          <li><a href="#">Care Guides</a></li>
+          <li><a href="#">Financing</a></li>
+          <li><a href="#">Trade Program</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">FAQ</a></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <span class="footer-copy">© 2025 Luminary Home. All rights reserved.</span>
+      <div class="footer-legal">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Cookie Settings</a>
+        <a href="#">Accessibility</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ================================================================
+       JAVASCRIPT
+  ================================================================ -->
+  <script>
+    /* ------------------------------------------------------------------
+       LOADER
+    ------------------------------------------------------------------ */
+    const loader = document.getElementById('loader');
+    const loaderCount = document.getElementById('loader-count');
+    let count = 0;
+    const countInterval = setInterval(() => {
+      count += Math.floor(Math.random() * 12) + 4;
+      if (count >= 100) {
+        count = 100;
+        clearInterval(countInterval);
+        setTimeout(() => loader.classList.add('hidden'), 300);
+      }
+      loaderCount.textContent = count + '%';
+    }, 80);
+
+    /* ------------------------------------------------------------------
+       CUSTOM CURSOR
+    ------------------------------------------------------------------ */
+    const dot  = document.getElementById('cursor-dot');
+    const ring = document.getElementById('cursor-ring');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      dot.style.left  = mx + 'px';
+      dot.style.top   = my + 'px';
+    });
+
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px';
+      ring.style.top  = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+
+    document.querySelectorAll('a, button, .pick-card, .theme-card, .designer-card, .inspo-item, .brand-item')
+      .forEach(el => {
+        el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+        el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+      });
+
+    /* ------------------------------------------------------------------
+       STICKY HEADER
+    ------------------------------------------------------------------ */
+    const header = document.getElementById('main-header');
+    window.addEventListener('scroll', () => {
+      header.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    /* ------------------------------------------------------------------
+       SCROLL REVEAL
+    ------------------------------------------------------------------ */
+    const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => observer.observe(el));
+
+    /* ------------------------------------------------------------------
+       PARALLAX HERO TEXT
+    ------------------------------------------------------------------ */
+    const heroBgText = document.querySelector('.hero-bg-text');
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      if (heroBgText) heroBgText.style.transform = `translate(-50%, calc(-50% + ${y * 0.3}px))`;
+    });
+
+    /* ------------------------------------------------------------------
+       MAGNETIC BUTTONS
+    ------------------------------------------------------------------ */
+    document.querySelectorAll('.mag-btn').forEach(btn => {
+      btn.addEventListener('mousemove', e => {
+        const rect = btn.getBoundingClientRect();
+        const dx = e.clientX - (rect.left + rect.width  / 2);
+        const dy = e.clientY - (rect.top  + rect.height / 2);
+        btn.style.transform = `translate(${dx * 0.25}px, ${dy * 0.35}px)`;
+      });
+      btn.addEventListener('mouseleave', () => {
+        btn.style.transform = '';
+        btn.style.transition = 'transform 0.5s cubic-bezier(0.16,1,0.3,1)';
+      });
+    });
+
+    /* ------------------------------------------------------------------
+       HERO STATS COUNTER ANIMATION
+    ------------------------------------------------------------------ */
+    function animateCounter(el, target, suffix = '') {
+      let start = 0;
+      const step = target / 60;
+      const interval = setInterval(() => {
+        start += step;
+        if (start >= target) { start = target; clearInterval(interval); }
+        el.textContent = Math.round(start) + suffix;
+      }, 24);
+    }
+
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const nums = entry.target.querySelectorAll('.stat-num');
+          const targets = [840, 38, 100];
+          const suffixes = ['+', '', '%'];
+          nums.forEach((el, i) => animateCounter(el, targets[i], suffixes[i]));
+          statsObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.5 });
+    const heroStats = document.querySelector('.hero-stats');
+    if (heroStats) statsObserver.observe(heroStats);
+
+    /* ------------------------------------------------------------------
+       PILLAR STAT COUNTER
+    ------------------------------------------------------------------ */
+    const pillarObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.querySelectorAll('.pillar-stat').forEach(el => {
+            const raw = el.textContent.trim();
+            const num = parseFloat(raw);
+            if (!isNaN(num)) {
+              const suffix = raw.replace(String(num), '');
+              animateCounter(el, num, suffix);
+            }
+          });
+          pillarObserver.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    document.querySelectorAll('.pillar').forEach(p => pillarObserver.observe(p));
+
+    /* ------------------------------------------------------------------
+       DESIGNER SEARCH FILTER
+    ------------------------------------------------------------------ */
+    const searchInput = document.querySelector('.designer-search input');
+    if (searchInput) {
+      searchInput.addEventListener('input', () => {
+        const q = searchInput.value.toLowerCase();
+        document.querySelectorAll('.designer-card').forEach(card => {
+          const text = card.textContent.toLowerCase();
+          card.style.opacity = text.includes(q) ? '1' : '0.25';
+          card.style.transform = text.includes(q) ? '' : 'scale(0.97)';
+          card.style.transition = 'opacity 0.3s, transform 0.3s';
+        });
+      });
+    }
+
+    /* ------------------------------------------------------------------
+       CARD TILT EFFECT
+    ------------------------------------------------------------------ */
+    document.querySelectorAll('.pick-card, .theme-card').forEach(card => {
+      card.addEventListener('mousemove', e => {
+        const rect = card.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width  - 0.5;
+        const y = (e.clientY - rect.top)  / rect.height - 0.5;
+        card.style.transform = `perspective(800px) rotateY(${x * 6}deg) rotateX(${-y * 6}deg) scale(1.01)`;
+        card.style.transition = 'transform 0.1s';
+      });
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+        card.style.transition = 'transform 0.5s cubic-bezier(0.16,1,0.3,1)';
+      });
+    });
+
+    /* ------------------------------------------------------------------
+       SMOOTH ANCHOR NAVIGATION
+    ------------------------------------------------------------------ */
+    document.querySelectorAll('a[href^="#"]').forEach(a => {
+      a.addEventListener('click', e => {
+        const target = document.querySelector(a.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+  </script>
+</body>
+</html>
